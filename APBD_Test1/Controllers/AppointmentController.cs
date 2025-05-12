@@ -25,14 +25,13 @@ public class AppointmentController:ControllerBase
         //init objects here latr
         Doctor doctor = new Doctor();
         Patient patient = new Patient();
-        Appointment appointment = new Appointment{
+        var appointment = new Appointment{
             services = new List<Service>()
         };
-        //List<Service> serviceList = new List<Service>();
-        int patientId ;
+        int patientId ;//i didnt add id to pat cause its not showed on the expected result
 
         try
-        {
+        {   //i also used more than one com so that if i get a syntax err or something like that it would be easy to find(at least in my mind it seemed like a good idea)
             await using var cmd = new SqlCommand("select * from Appointment where appointment_id = @id", con);
             cmd.Parameters.AddWithValue("@id", id);
             
@@ -72,7 +71,6 @@ select ass.service_fee , s.name from Appointment_Service ass
                                 where appointment_id = @id", con);
             cmdService.Parameters.AddWithValue("@id", id);
             
-            // TODO check later
             await using var rdrService = await cmdService.ExecuteReaderAsync(token);
             if (!await rdrService.ReadAsync(token))
                 return NotFound("no service found");
@@ -96,12 +94,11 @@ select ass.service_fee , s.name from Appointment_Service ass
 
         }catch (Exception ex)
         {
-            return StatusCode(500, $"Error: {ex.Message}");
+            return StatusCode(500, $"Error: {ex.Message}");//i added the err message for easy debugging(n probb added the same logic to the second one as well)
         }
         
     }
 
-    //TODO : the second end point to implemant later
     [HttpPost]
     public async Task<IActionResult> AddAppointment([FromBody] CreateAppointmentRequest request,CancellationToken token)
     {
@@ -138,7 +135,7 @@ select ass.service_fee , s.name from Appointment_Service ass
             insertAppo.Parameters.AddWithValue("@appoitmentId", newAppointmentId);
             insertAppo.Parameters.AddWithValue("@patientId", request.PatientId);
             insertAppo.Parameters.AddWithValue("@doctorId", doctorId);
-            insertAppo.Parameters.AddWithValue("@date", DateTime.UtcNow);
+            insertAppo.Parameters.AddWithValue("@date", DateTime.UtcNow);//there was not date mentioned so i set it to "now'
 
             await insertAppo.ExecuteNonQueryAsync(token);
 
@@ -150,7 +147,7 @@ select ass.service_fee , s.name from Appointment_Service ass
                 var serviceIdObj = await getServiceId.ExecuteScalarAsync(token);
 
                 if (serviceIdObj is null)
-                    return NotFound($"Service '{service.ServiceName}' not found.");
+                    return NotFound("no such service");
 
                 int serviceId = (int)serviceIdObj;
 

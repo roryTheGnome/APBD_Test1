@@ -1,6 +1,5 @@
 ﻿namespace APBD_Test1.Models;
 
-//check if neccessery later
 public class Appointment
 {
     public DateTime date { get; set; }
